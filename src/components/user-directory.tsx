@@ -57,7 +57,7 @@ export default function UserDirectory() {
             {sidebarOpen ? (
               <div className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent flex items-center gap-2 py-2">
                 <Users className="h-5 w-5 text-cyan-500" />
-                <span>NEXUS OS</span>
+                <span>User Dashboard</span>
               </div>
             ) : (
               <div className="w-full flex justify-center py-2">
