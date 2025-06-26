@@ -140,8 +140,6 @@ export default function VideoPage() {
   };
 
   const handleContainerClick = () => {
-    setHasUserInteracted(true);
-    
     if (videoRef.current && isVideoReady) {
       if (isPlaying) {
         videoRef.current.pause();
