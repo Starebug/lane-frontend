@@ -139,7 +139,7 @@ export default function VideoPage() {
     e.stopPropagation();
   };
 
-  const handleContainerClick = (e: React.MouseEvent) => {
+  const handleContainerClick = () => {
     setHasUserInteracted(true);
     
     if (videoRef.current && isVideoReady) {
