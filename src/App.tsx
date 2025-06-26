@@ -11,20 +11,10 @@ export default function VideoPage() {
   const [currentTime, setCurrentTime] = useState(0);
   const [autoplayAttempted, setAutoplayAttempted] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
-  const [hasUserInteracted, setHasUserInteracted] = useState(false);
 
   // Replace with your own video file path or public URL
   const videoSrc = '/video/jet.mp4';
 
-  // Detect iOS for special handling
-  useEffect(() => {
-    // More accurate iOS detection - excludes Mac computers
-    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && 
-                !/Macintosh/.test(navigator.userAgent);
-    setIsIOS(iOS);
-    console.log('iOS detected:', iOS, 'UserAgent:', navigator.userAgent);
-  }, []);
 
   const handleCanPlay = () => {
     console.log('CanPlay event fired');
@@ -32,12 +22,10 @@ export default function VideoPage() {
       setIsVideoReady(true);
       setDuration(videoRef.current.duration);
       console.log('Video is now ready for playback and seeking');
-      // Only attempt autoplay on non-iOS devices or after user interaction on iOS
-      if (!autoplayAttempted && (!isIOS || hasUserInteracted)) {
+      if (!autoplayAttempted) {
         setAutoplayAttempted(true);
         videoRef.current.play().then(() => {
           setIsPlaying(true);
-          console.log('Autoplay successful');
         }).catch((error) => {
           console.log('Autoplay failed:', error);
         });
@@ -50,15 +38,13 @@ export default function VideoPage() {
     if (videoRef.current) {
       setIsVideoReady(true);
       setDuration(videoRef.current.duration);
-      // Only attempt autoplay on non-iOS devices or after user interaction on iOS
-      if (!autoplayAttempted && (!isIOS || hasUserInteracted)) {
+      if (!autoplayAttempted) {
         setAutoplayAttempted(true);
         videoRef.current.play().then(() => {
           setIsPlaying(true);
-          console.log('Autoplay successful');
-        }).catch((error) => {
+          }).catch((error) => {
           console.log('Autoplay failed:', error);
-        });
+          });
       }
     }
   };
@@ -72,24 +58,20 @@ export default function VideoPage() {
       videoRef.current.muted = false;
       setIsMuted(false);
       setShowOverlay(false);
-      setHasUserInteracted(true);
-      
-      // For iOS, ensure we start playing after user interaction
-      if (isIOS && !isPlaying) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+      setCurrentTime(0);
+      videoRef.current.play();
+      if (!isPlaying) {
         videoRef.current.play().then(() => {
           setIsPlaying(true);
-          console.log('iOS video started playing after user interaction');
-        }).catch((error) => {
-          console.log('iOS play failed:', error);
-        });
+        }).catch(console.log);
       }
     }
   };
 
   const handlePlayPause = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent event bubbling
-    setHasUserInteracted(true);
-    
     if (videoRef.current && isVideoReady) {
       if (isPlaying) {
         videoRef.current.pause();
@@ -104,8 +86,6 @@ export default function VideoPage() {
 
   const handleMuteToggle = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent event bubbling
-    setHasUserInteracted(true);
-    
     if (videoRef.current) {
       videoRef.current.muted = !isMuted;
       setIsMuted(!isMuted);
@@ -126,13 +106,11 @@ export default function VideoPage() {
       console.log('Seeking to:', time, 'Duration:', duration, 'Ready:', isVideoReady);
       videoRef.current.currentTime = time;
       setCurrentTime(time);
-      setHasUserInteracted(true);
     }
   };
 
   const handleSeekMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setHasUserInteracted(true);
   };
 
   const handleSeekMouseUp = (e: React.MouseEvent) => {
@@ -159,8 +137,7 @@ export default function VideoPage() {
           console.log('Forcing ready state - duration available');
           setIsVideoReady(true);
           setDuration(videoRef.current.duration);
-          // Only attempt autoplay on non-iOS devices
-          if (!autoplayAttempted && !isIOS) {
+          if (!autoplayAttempted) {
             setAutoplayAttempted(true);
             videoRef.current.play().then(() => {
               setIsPlaying(true);
@@ -172,7 +149,7 @@ export default function VideoPage() {
       }
     }
     autoPlay();
-  }, [isIOS]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">
@@ -183,6 +160,7 @@ export default function VideoPage() {
         >
           <video
             ref={videoRef}
+            autoPlay
             className="w-full h-full rounded-lg bg-black"
             src={videoSrc}
             muted={isMuted}
@@ -216,16 +194,10 @@ export default function VideoPage() {
                   </svg>
                 </div>
               </div>
-              <p className="text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2 animate-pulse">
-                {isIOS ? '📱 Tap to Start' : '🔊 Click to Unmute'}
-              </p>
-              <p className="text-xs sm:text-sm opacity-80">
-                {isIOS ? 'iOS requires user interaction to play video' : 'Video is muted by default'}
-              </p>
+              <p className="text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2 animate-pulse">🔊 Click to Unmute</p>
+              <p className="text-xs sm:text-sm opacity-80">Video is muted by default</p>
               {isVideoReady && !isPlaying && (
-                <p className="text-xs opacity-60 mt-1 sm:mt-2">
-                  {isIOS ? 'Tap anywhere to start playing' : 'Click anywhere to start playing'}
-                </p>
+                <p className="text-xs opacity-60 mt-1 sm:mt-2">Click anywhere to start playing</p>
               )}
             </div>
           </div>
