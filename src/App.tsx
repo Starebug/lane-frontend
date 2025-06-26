@@ -117,7 +117,7 @@ export default function VideoPage() {
     e.stopPropagation();
   };
 
-  const handleContainerClick = (e: React.MouseEvent) => {
+  const handleContainerClick = () => {
     if (videoRef.current && isVideoReady) {
       if (isPlaying) {
         videoRef.current.pause();
