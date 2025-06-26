@@ -19,10 +19,11 @@ export default function VideoPage() {
 
   // Detect iOS for special handling
   useEffect(() => {
-    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    // More accurate iOS detection - excludes Mac computers
+    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && 
+                !/Macintosh/.test(navigator.userAgent);
     setIsIOS(iOS);
-    console.log('iOS detected:', iOS);
+    console.log('iOS detected:', iOS, 'UserAgent:', navigator.userAgent);
   }, []);
 
   const handleCanPlay = () => {
